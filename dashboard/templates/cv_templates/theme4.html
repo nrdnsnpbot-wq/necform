@@ -1,0 +1,331 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ prenom }} {{ nom }} - CV</title>
+  <style>
+    :root {
+      --side-gap: 12px;
+    }
+
+    /* ---------- CONFIGURATION PAGE A4 ---------- */
+    @page {
+      size: A4;
+      margin: 20mm 15mm; /* Marges PDF pour toutes les pages */
+    }
+    
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: Calibri, Arial, sans-serif;
+      color: #111;
+    }
+
+    .background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;   /* colle à droite */
+      bottom: 0;  /* colle en bas */
+      z-index: 0;
+      margin-left: -17px; 
+    }
+    .background img {
+      width: 100%;   
+      height: 125%;  /* un peu plus haut */
+      object-fit: cover;
+      margin: -15% 0 0 -5%; /* recadrage */
+    }
+
+
+    /* Conteneur table */
+    .content {
+      position: relative;
+      z-index: 1;
+      display: table;
+      width: 100%;
+      table-layout: fixed;
+      margin-left: -40px;
+    }
+
+    .left-column, .right-column {
+      display: table-cell;
+      vertical-align: top;
+      padding: 0 15px 15px 15px;
+    }
+
+    .left-column {
+      width: 20%;
+      font-size: 11px;
+      overflow: hidden;       /* empêche tout débordement visuel */
+      word-wrap: break-word;  /* casse les mots trop longs */
+      word-break: break-word; /* casse si besoin même au milieu */
+      hyphens: auto;          /* ajoute des césures si dispo */
+    }
+
+    .left-column .section p, 
+    .left-column .section li {
+      word-break: break-word;
+      white-space: normal;    /* autorise les retours à la ligne */
+    }
+
+    .right-column {
+      width: 72%;
+      padding-left: 25px;
+    }
+
+    .logo {
+      max-width: 100px;
+      display: block;
+      margin: -10px 0 10px 0; /* 0 en haut/gauche, 10px en bas */
+    }
+
+
+    /* Sections */
+    .section {
+      margin-bottom: 20px;
+      page-break-inside: auto; 
+      z-index: 22;
+    }
+
+    /* Nom et poste */
+    .header-name {
+      font-size: 26px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .header-job {
+      font-size: 18px;
+      color: #fb5c00;
+      margin-bottom: 20px;
+    }
+
+    /* Titres */
+    h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+      position: relative;
+      padding-bottom: 8px; /* espace avec le texte */
+    }
+
+    h2::after {
+      content: "";
+      display: block;
+      width: 43px;           /* longueur */
+      height: 3px;          /* épaisseur */
+      background: #fb5c00;  /* orange */
+      margin-top: 4px;      /* petit espace */
+    }
+
+    ul {
+      margin: 5px 0 10px 20px;
+      padding: 0;
+    }
+    .main-text {
+      box-sizing: border-box;
+      width: 100%;
+      font-size: 14px;
+      line-height: 1.6;
+      word-wrap: break-word;
+      margin: 0;              /* on enlève les marges forcées */
+      padding: 10px 0;        /* juste un petit padding */
+    }
+
+  </style>
+</head>
+<body>
+  <!-- Image de fond -->
+  <div class="background">
+    <img src="{% static 'img/img4.png' %}" alt="Fond">
+  </div>
+
+  <!-- Layout -->
+  <div class="content">
+    <!-- Colonne gauche -->
+    <div class="left-column">
+      {% if logo %}
+        <img src="{{ logo }}" alt="Logo" class="logo">
+      {% endif %}
+
+      {% if formations %}
+        <div class="section">
+          <h2>Formations</h2>
+          <ul>
+            {% for f in formations %}
+              <li>
+                <strong>{{ f.diplome }}</strong>
+                {% if f.etablissement %}
+                  – <em>{{ f.etablissement }}</em>
+                {% endif %}
+                {% if f.periode %}
+                  ({{ f.periode }})
+                {% endif %}
+                {% if f.details %}
+                  <br>
+                  <small>{{ f.details }}</small>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+      {% if langues %}
+      <div class="section">
+        <h2>Langues</h2>
+        <ul>
+          {% for lang in langues %}
+          <li>{{ lang }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      {% if informations %}
+      <div class="section">
+        <h2>Contact</h2>
+        <div>{{ informations }}</div>
+      </div>
+      {% endif %}
+
+      {% if footer %}
+      <div class="section">
+        <h2>Informations de l'entreprise</h2>
+        <div>{{ footer }}<</div>
+      </div>
+      {% endif %}
+
+    </div>
+
+    <!-- Colonne droite -->
+    <div class="right-column">
+    <div class="main-text">
+      <div class="section">
+        <p class="header-name">{{ prenom }} {{ nom }}</p>
+        <p class="header-job">{{ titre_poste }}</p>
+      </div>
+
+      {% if description %}
+      <div class="section">
+        <h2>Profil</h2>
+        <p>{{ description }}</p>
+      </div>
+      {% endif %}
+
+      {% if competences %}
+      <div class="section">
+          <h2>
+              <i class="bi bi-tools"></i>
+              <span>Compétences Techniques</span>
+          </h2>
+          <ul style="list-style: none; padding-left: 0;">
+              {% for comp in competences %}
+              <li style="margin-bottom: 6px;">
+                  <strong >{{ comp.titre }} :</strong>
+                  {% if comp.details %}
+                      <span style="color: #333;">
+                          {{ comp.details|join:", " }}
+                      </span>
+                  {% endif %}
+              </li>
+              {% endfor %}
+          </ul>
+      </div>
+      {% endif %}
+
+
+      {% if certificats %}
+      <div class="section">
+        <h2>Certificats</h2>
+        <ul>
+          {% for cert in certificats %}
+          <li>{{ cert }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      {% if rajouter %}
+      <div class="section">
+        <h2>Autres</h2>
+        <p>{{ rajouter }}</p>
+      </div>
+      {% endif %}
+
+      {% if experience %}
+      <div class="section">
+        <h2>Expériences Professionnelles</h2>
+        {% for exp in experience %}
+        <div class="experience">
+          <br>
+          <span class="year"><strong><em>{{ exp.periode }}</em></strong></span>
+          <div class="details">
+            <div class="experience-title"><strong>{{ exp.poste }}</strong></div>
+            {% if exp.entreprise %}
+            <div class="experience-company"><em>{{ exp.entreprise }}</em></div>
+            {% endif %}
+            {% if exp.details %}
+            <div class="experience-details">
+              {% if exp.details|length > 100 or "\n" in exp.details %}
+              <ul>
+                {% for ligne in exp.details.splitlines %}
+                  {% if ligne.strip %}
+                  <li>{{ ligne.strip }}</li>
+                  {% endif %}
+                {% endfor %}
+              </ul>
+              {% else %}
+              {{ exp.details }}
+              {% endif %}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+
+    </div>
+    </div>
+  </div>
+  <script>
+function renderInfos(rawId, targetId) {
+  let infos = document.getElementById(rawId)?.textContent.trim() || "";
+  if (!infos) return;
+
+  let html = "";
+
+  // Email
+  let emails = infos.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}/g);
+  if (emails) {
+    emails.forEach(mail => html += `<p><strong>Email :</strong> ${mail}</p>`);
+  }
+
+  // Téléphone
+  let tels = infos.match(/(\+?\d[\d\s.-]{5,})/g);
+  if (tels) {
+    tels.forEach(num => html += `<p><strong>Téléphone :</strong> ${num.trim()}</p>`);
+  }
+
+  // Le reste
+  let reste = infos;
+  if (emails) emails.forEach(e => reste = reste.replace(e, ""));
+  if (tels) tels.forEach(t => reste = reste.replace(t, ""));
+  reste.split(/[\n,;:]+/).forEach(part => {
+    if (part.trim()) html += `<p>${part.trim()}</p>`;
+  });
+
+  document.getElementById(targetId).innerHTML = html;
+}
+
+// Contact
+renderInfos("raw-infos-contact", "infos-contact");
+// Footer (infos entreprise)
+renderInfos("raw-infos-footer", "infos-footer");
+</script>
+
+
+</body>
+</html>

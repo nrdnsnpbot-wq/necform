@@ -1,0 +1,392 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid px-4 mt-4">
+    <h2>Créer un CV personnaliser</h2>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="post" action="{% url 'telecharger_cv' %}" enctype="multipart/form-data" id="cvForm">
+                {% csrf_token %}
+
+                <!-- Upload CV -->
+                <div class="mb-3">
+                    <label for="cv_file" class="form-label fw-bold">Importer le CV</label>
+                    <input type="file" name="cv_file" id="cv_file" class="form-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                </div>
+
+                <div class="mb-3">
+                    <button type="button"
+                            class="btn btn-warning"
+                            onclick="scannerCV({{ can_download|yesno:'true,false' }})">
+                        Scanner le CV
+                    </button>
+
+
+                    {% if not abonnement_valide %}
+                    <p class="text-danger mt-2">
+                        Votre abonnement est expiré. Veuillez le renouveler pour générer des CV.
+                    </p>
+                    {% endif %}
+                </div>
+
+
+
+
+                <!-- Champs après extraction -->
+                <div class="mb-3">
+                    <label for="nom" class="form-label fw-bold">Nom</label>
+                    <input type="text" name="nom" id="nom" class="form-control" value="{{ nom }}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="prenom" class="form-label fw-bold">Prénom</label>
+                    <input type="text" name="prenom" id="prenom" class="form-control" value="{{ prenom }}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="posttitle" class="form-label fw-bold">Titre du post</label>
+                    <input type="text" name="posttitle" id="posttitle" class="form-control" value="{{ posttitle }}">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Contacts</label>
+                    <div id="contacts_list"></div>
+                    <button type="button" class="btn btn-secondary" onclick="addContact()">+ Ajouter un contact</button>
+                </div>
+
+
+               <div class="mb-3">
+                    <label class="form-label fw-bold">Compétences</label>
+                    <div id="competences_list"></div>
+                    <button type="button" class="btn btn-secondary" onclick="addCompetence()">+ Ajouter une compétence</button>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Formations</label>
+                    <div id="formations_list"></div>
+                    <button type="button" class="btn btn-secondary" onclick="addFormation()">+ Ajouter une formation</button>
+                </div>
+
+
+                <div class="mb-3">
+                    <label for="certificats" class="form-label fw-bold">Certificats</label>
+                    <input type="text" name="certificats" id="certificats" class="form-control" value="{{ certificats }}">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Expériences</label>
+                    <div id="experience_list"></div>
+                    <button type="button" class="btn btn-secondary" onclick="addExperience()">+ Ajouter une expérience</button>
+                </div>
+
+
+
+                <div class="mb-3">
+                    <label for="Langues" class="form-label fw-bold">Langues</label>
+                    <input type="text" name="Langues" id="Langues" class="form-control" value="{{ Langues }}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="Description" class="form-label fw-bold">Description du profil</label>
+                    <input type="text" name="Description" id="Description" class="form-control" value="{{ Description }}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="rajouter" class="form-label fw-bold">Rajouter un nouveau champ</label>
+                    <input type="text" name="rajouter" id="rajouter" class="form-control" value="{{ rajouter }}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="font_family" class="form-label fw-bold">Police du CV</label>
+                    <select name="font_family" id="font_family" class="form-select">
+                        <option value="Helvetica" selected>Helvetica</option>
+                        <option value="Times-Roman">Times New Roman</option>
+                        <option value="Courier">Courier</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="font_size" class="form-label fw-bold">Taille de police</label>
+                    <input type="number" name="font_size" id="font_size" class="form-control" value="13" min="8" max="30">
+                </div>
+
+                <div class="mb-3">
+                    <label for="color_titles" class="form-label fw-bold">Couleur des titres</label>
+                    <input type="color" name="color_titles" id="color_titles" class="form-control form-control-color" value="#000000">
+                </div>
+
+                <div class="mb-3">
+                    <label for="color_details" class="form-label fw-bold">Couleur des détails</label>
+                    <input type="color" name="color_details" id="color_details" class="form-control form-control-color" value="#333333">
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Choisir un thème pour le CV</label><br>
+
+                    <!-- Choix entre modèle existant ou non -->
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="modele_option" id="choisir_theme" value="choisir" checked>
+                        <label class="form-check-label" for="choisir_theme">
+                            Je veux choisir un modèle
+                        </label>
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="modele_option" id="upload_modele" value="upload">
+                        <label class="form-check-label" for="upload_modele">
+                            J’ai déjà un modèle (téléverser mon fichier)
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Section thèmes (par défaut affichée) -->
+                <div id="themes_section" class="row">
+                    <div class="col-3">
+                        <label>
+                            <input type="radio" name="theme" value="theme1" required>
+                            <img src="{% static 'img/CV2.png' %}" class="img-thumbnail" alt="Thème 1">
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label>
+                            <input type="radio" name="theme" value="theme2">
+                            <img src="{% static 'img/cv2.jpg' %}" class="img-thumbnail" alt="Thème 2">
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label>
+                            <input type="radio" name="theme" value="theme3">
+                            <img src="{% static 'img/cv3.png' %}" class="img-thumbnail" alt="Thème 3">
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label>
+                            <input type="radio" name="theme" value="theme4">
+                            <img src="{% static 'img/cv4.png' %}" class="img-thumbnail" alt="Thème 4">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Section upload modèle (cachée par défaut) -->
+                <div id="upload_section" class="mt-3" style="display:none;">
+                    <label for="modele_file" class="form-label">Téléverser votre modèle (jpg ou pnj vide sans logo ni aucune écriture)</label>
+                    <input type="file" class="form-control" name="modele_file" id="modele_file" accept=".pdf,.doc,.docx">
+                </div>
+
+
+                <div class="mb-3">
+                    <br>
+                    <label class="form-label fw-bold">Afficher les infos de l’entreprise en bas du CV ?</label>
+                    <div>
+                        <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="infos_entreprise" id="infos_oui" value="oui" checked>
+                        <label class="form-check-label" for="infos_oui">Oui</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="infos_entreprise" id="infos_non" value="non">
+                        <label class="form-check-label" for="infos_non">Non</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-success">Télécharger en pdf</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const choisirTheme = document.getElementById("choisir_theme");
+        const uploadModele = document.getElementById("upload_modele");
+        const themesSection = document.getElementById("themes_section");
+        const uploadSection = document.getElementById("upload_section");
+
+        function toggleSections() {
+            if (choisirTheme.checked) {
+                themesSection.style.display = "flex";
+                uploadSection.style.display = "none";
+            } else if (uploadModele.checked) {
+                themesSection.style.display = "none";
+                uploadSection.style.display = "block";
+            }
+        }
+
+        choisirTheme.addEventListener("change", toggleSections);
+        uploadModele.addEventListener("change", toggleSections);
+
+        // Initialisation
+        toggleSections();
+    });
+</script>
+
+<script>
+    function createCard(innerHTML, container, sectionName) {
+        const block = document.createElement("div");
+        block.classList.add("card", "p-2", "mb-2");
+        block.innerHTML = innerHTML;
+
+        // bouton supprimer
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.classList.add("btn", "btn-sm", "btn-danger", "mt-2");
+        btn.textContent = "Supprimer";
+        btn.onclick = () => {
+            block.remove();
+            reindexSection(container, sectionName);
+        };
+        block.appendChild(btn);
+
+        container.appendChild(block);
+    }
+
+    function reindexSection(container, sectionName) {
+        [...container.children].forEach((block, idx) => {
+            block.querySelectorAll("[name]").forEach(input => {
+                input.name = input.name.replace(new RegExp(sectionName + "\\[\\d+\\]"), sectionName + "[" + idx + "]");
+            });
+        });
+    }
+
+    function addContact() {
+        const container = document.getElementById("contacts_list");
+        const idx = container.children.length;
+        createCard(`
+            <div><b>Type :</b> <input type="text" name="contact[${idx}][type]" class="form-control"></div>
+            <div><b>Valeur :</b> <input type="text" name="contact[${idx}][valeur]" class="form-control"></div>
+        `, container, "contact");
+    }
+
+    function addCompetence() {
+        const container = document.getElementById("competences_list");
+        const idx = container.children.length;
+        createCard(`
+            <div><b>Titre :</b> <input type="text" name="competences[${idx}][titre]" class="form-control"></div>
+            <div><b>Détails :</b> <input type="text" name="competences[${idx}][details]" class="form-control"></div>
+        `, container, "competences");
+    }
+
+    function addFormation() {
+        const container = document.getElementById("formations_list");
+        const idx = container.children.length;
+        createCard(`
+            <div><b>Diplôme :</b> <input type="text" name="formations[${idx}][diplome]" class="form-control"></div>
+            <div><b>École :</b> <input type="text" name="formations[${idx}][ecole]" class="form-control"></div>
+            <div><b>Lieu :</b> <input type="text" name="formations[${idx}][lieu]" class="form-control"></div>
+            <div><b>Période :</b> <input type="text" name="formations[${idx}][periode]" class="form-control"></div>
+            <div><b>Détails :</b> <textarea name="formations[${idx}][details]" class="form-control"></textarea></div>
+        `, container, "formations");
+    }
+
+    function addExperience() {
+        const container = document.getElementById("experience_list");
+        const idx = container.children.length;
+        createCard(`
+            <div><b>Poste :</b> <input type="text" name="experience[${idx}][poste]" class="form-control"></div>
+            <div><b>Entreprise :</b> <input type="text" name="experience[${idx}][entreprise]" class="form-control"></div>
+            <div><b>Lieu :</b> <input type="text" name="experience[${idx}][lieu]" class="form-control"></div>
+            <div><b>Période :</b> <input type="text" name="experience[${idx}][periode]" class="form-control"></div>
+            <div><b>Détails :</b> <textarea name="experience[${idx}][details]" class="form-control"></textarea></div>
+        `, container, "experience");
+    }
+
+    function scannerCV(abonnementValide) {
+        if (!abonnementValide) {
+            alert("Votre abonnement a expiré. Veuillez le renouveler pour générer un CV.");
+            return;
+        }
+        const formData = new FormData();
+        const fileInput = document.getElementById('cv_file');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert("Veuillez sélectionner un fichier.");
+            return;
+        }
+
+        formData.append('cv_file', file);
+        formData.append('action', 'scan');
+        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+        fetch("{% url 'scanner_cv' %}", {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('nom').value = data.nom || "";
+                document.getElementById('prenom').value = data.prenom || "";
+                document.getElementById('posttitle').value = data.posttitle || "";
+                document.getElementById('certificats').value = (data.certificats || []).join(", ");
+                document.getElementById('Langues').value = (data.Langues || []).join(", ");
+                document.getElementById('Description').value = data.Description || "";
+
+                // 🔹 Contacts
+                const contactContainer = document.getElementById('contacts_list');
+                contactContainer.innerHTML = "";
+                if (data.contact && Array.isArray(data.contact)) {
+                    data.contact.forEach((c, idx) => {
+                        createCard(`
+                            <div><b>Type :</b> <input type="text" name="contact[${idx}][type]" class="form-control" value="${c.type || ''}"></div>
+                            <div><b>Valeur :</b> <input type="text" name="contact[${idx}][valeur]" class="form-control" value="${c.valeur || ''}"></div>
+                        `, contactContainer, "contact");
+                    });
+                }
+
+                // 🔹 Compétences
+                const compContainer = document.getElementById('competences_list');
+                compContainer.innerHTML = "";
+                if (data.competences && Array.isArray(data.competences)) {
+                    data.competences.forEach((comp, idx) => {
+                        createCard(`
+                            <div><b>Titre :</b> <input type="text" name="competences[${idx}][titre]" class="form-control" value="${comp.titre || ''}"></div>
+                            <div><b>Détails :</b> <input type="text" name="competences[${idx}][details]" class="form-control" value="${(comp.details || []).join(', ')}"></div>
+                        `, compContainer, "competences");
+                    });
+                }
+
+                // 🔹 Formations
+                const formContainer = document.getElementById('formations_list');
+                formContainer.innerHTML = "";
+                if (data.formations && Array.isArray(data.formations)) {
+                    data.formations.forEach((f, idx) => {
+                        createCard(`
+                            <div><b>Diplôme :</b> <input type="text" name="formations[${idx}][diplome]" class="form-control" value="${f.diplome || ''}"></div>
+                            <div><b>École :</b> <input type="text" name="formations[${idx}][ecole]" class="form-control" value="${f.ecole || ''}"></div>
+                            <div><b>Lieu :</b> <input type="text" name="formations[${idx}][lieu]" class="form-control" value="${f.lieu || ''}"></div>
+                            <div><b>Période :</b> <input type="text" name="formations[${idx}][periode]" class="form-control" value="${f.periode || ''}"></div>
+                            <div><b>Détails :</b> <textarea name="formations[${idx}][details]" class="form-control">${f.details || ''}</textarea></div>
+                        `, formContainer, "formations");
+                    });
+                }
+
+                // 🔹 Expériences
+                const expContainer = document.getElementById('experience_list');
+                expContainer.innerHTML = "";
+                if (data.experience && Array.isArray(data.experience)) {
+                    data.experience.forEach((exp, idx) => {
+                        createCard(`
+                            <div><b>Poste :</b> <input type="text" name="experience[${idx}][poste]" class="form-control" value="${exp.poste || ''}"></div>
+                            <div><b>Entreprise :</b> <input type="text" name="experience[${idx}][entreprise]" class="form-control" value="${exp.entreprise || ''}"></div>
+                            <div><b>Lieu :</b> <input type="text" name="experience[${idx}][lieu]" class="form-control" value="${exp.lieu || ''}"></div>
+                            <div><b>Période :</b> <input type="text" name="experience[${idx}][periode]" class="form-control" value="${exp.periode || ''}"></div>
+                            <div><b>Détails :</b> <textarea name="experience[${idx}][details]" class="form-control">${exp.details || ''}</textarea></div>
+                        `, expContainer, "experience");
+                    });
+                }
+            } else {
+                alert(data.error || "Erreur lors du scan.");
+            }
+        })
+        .catch(error => {
+            console.error("Erreur AJAX :", error);
+        });
+    }
+</script>
+
+{% endblock %}

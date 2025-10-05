@@ -1,0 +1,50 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid px-4 mt-4">
+    <h2 class="mb-4">Mes candidats</h2>
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Prénom</th>
+                            <th>Nom</th>
+                            <th>Titre du poste</th>
+                            <th>Langues</th>
+                            <th>Expérience</th>
+                            <th>Certificats</th>
+                            <th>Compétences</th>
+                            <th>Informations contact</th>
+                            <th>Champ libre</th>
+                            <th>Date de création</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in candidats %}
+                        <tr>
+                            <td>{{ c.prenom }}</td>
+                            <td>{{ c.nom }}</td>
+                            <td>{{ c.titre_poste }}</td>
+                            <td>{{ c.langues }}</td>
+                            <td>{{ c.experience }}</td>
+                            <td>{{ c.certificats }}</td>
+                            <td>{{ c.competences }}</td>
+                            <td>{{ c.informations_contact }}</td>
+                            <td>{{ c.rajouter_champ }}</td>
+                            <td>{{ c.date_creation|date:"d/m/Y H:i" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="12" class="text-center">Aucun candidat trouvé.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

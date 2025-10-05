@@ -1,0 +1,77 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+
+  <h2>Bienvenue {{ user.username }}</h2>
+
+  <!-- Formulaire Informations de l'entreprise -->
+  <div class="card mb-3">
+    <div class="card-header">
+      <h3>Informations de l’entreprise</h3>
+    </div>
+    <div class="card-body">
+      <form method="POST" enctype="multipart/form-data" action="{% url 'dashboard' %}">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+          <label for="company_name" class="form-label">Nom de l’entreprise</label>
+          <input type="text" name="company_name" id="company_name" class="form-control" value="{{ user.company_name }}">
+        </div>
+
+        <div class="mb-3">
+          <label for="company_address" class="form-label">Adresse</label>
+          <textarea name="company_address" id="company_address" class="form-control">{{ user.company_address }}</textarea>
+        </div>
+
+        <div class="mb-3">
+          <label for="company_phone" class="form-label">Téléphone</label>
+          <input type="text" name="company_phone" id="company_phone" class="form-control" value="{{ user.company_phone }}">
+        </div>
+
+        <div class="mb-3">
+          <label for="company_kbis" class="form-label">Numéro Kbis</label>
+          <input type="text" name="company_kbis" id="company_kbis" class="form-control" value="{{ user.company_kbis }}">
+        </div>
+
+        <div class="mb-3">
+          <label for="logo" class="form-label">Logo</label>
+          <input type="file" name="logo" id="logo" class="form-control">
+          {% if user.logo %}
+            <img src="{{ user.logo.url }}" alt="Logo" style="max-height:100px; margin-top:10px;">
+          {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary">Mettre à jour</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Statistiques -->
+  <div class="card mb-3">
+    <div class="card-header">
+      <h3>Statistiques</h3>
+    </div>
+    <div class="card-body">
+      <p><strong>CV téléchargés :</strong> {{ user.cv_download_count }}</p>
+      <p><strong>CV générés (total) :</strong> {{ user.nombre_cv_total }}</p>
+      <p><strong>CV générés ce mois :</strong> {{ user.nombre_cv_mois }}</p>
+      <p><strong>CV restants :</strong> {{ user.nombre_cv_peut_telecharger }}</p>
+    </div>
+  </div>
+
+  <!-- Abonnement -->
+  <div class="card mb-3">
+    <div class="card-header">
+      <h3>Abonnement</h3>
+    </div>
+    <div class="card-body">
+      <p><strong>Type :</strong> {{ user.abonnement_type }}</p>
+      <p><strong>Date de début :</strong> {{ user.abonnement_debut }}</p>
+      <p><strong>Date de fin :</strong> {{ user.abonnement_fin }}</p>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

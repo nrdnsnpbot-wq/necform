@@ -1,0 +1,430 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ prenom }} {{ nom }} - CV</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <style>
+    :root {
+      --side-gap: 12px;
+    }
+
+    /* ---------- CONFIGURATION PAGE A4 ---------- */
+    @page {
+      size: A4;
+      margin: 20mm 15mm; /* Marges PDF pour toutes les pages */
+    }
+    
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: Calibri, Arial, sans-serif;
+      color: #333;
+    }
+
+    /* ---------- TEXTE LONG ---------- */
+    .main-text {
+      box-sizing: border-box;
+      width: 100%;
+      font-size: 14px;
+      line-height: 1.6;
+      word-wrap: break-word;
+      margin-top: 20mm; /* Marge en haut après première page */
+      margin-bottom: 60mm; /* Marge en bas pour le PDF */
+    }
+
+    .main-text p {
+      margin-bottom: 12px;
+    }
+        /* HEADER */
+        .header {
+            background-image: url("{% static 'img/img1.png' %}");
+            background-size: cover;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* infos à gauche, logo à droite */
+            padding: 8px 30px;
+            width: 100%;
+            margin-top: -200px;
+            height: 120px;
+        }
+
+        .header-info {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 50%;       /* limite à 50% de la largeur */
+}
+
+.header-name {
+    font-size: 22px;
+    font-weight: bold;
+    text-transform: uppercase;
+    white-space: nowrap;  /* reste sur une seule ligne */
+    overflow: hidden;     /* évite de dépasser */
+    text-overflow: ellipsis; /* ajoute ... si trop long */
+}
+
+.header-poste {
+    font-size: 18px;
+    margin-top: 4px;
+    font-style: italic;
+}
+
+        .header img {
+            height: 100px;
+            margin-left: 625px;  /* espace entre texte et logo */
+        }
+
+
+
+        /* SECTIONS */
+        .section {
+            margin: 10px 50px;
+            page-break-inside: auto;
+            border-bottom: none;
+            padding-bottom: 15px;
+        }
+        .section h2 {
+            font-size: 22px;
+            color: #5b3896;
+            margin: 0 0 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 6px;
+            border-bottom: none;
+        }
+        .section h2 span {
+            border-bottom: 2px solid #5b3896;
+            padding-bottom: 3px;
+            display: inline-block;
+            flex-grow: 1;
+        }
+        .section h2 i {
+            font-size: 22px;
+            color: #5b3896;
+        }
+
+        /* LISTES */
+        ul {
+            list-style: none;
+            padding-left: 25px;
+            margin: 0;
+        }
+        ul li {
+            margin-bottom: 6px;
+            position: relative;
+        }
+        ul li::before {
+            content: "•";
+            color: #08004c;
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+        .experience {
+            margin-bottom: 15px;
+            display: block;
+            page-break-inside: auto; /* idem */
+            break-inside: auto;
+        }
+        .experience .year {
+            float: left;
+            width: 90px;
+            font-weight: bold;
+            color: #5b3896;
+        }
+        .experience .details {
+            margin-left: 100px;
+        }
+        .experience .details ul {
+            margin: 6px 0 0 0;
+            padding-left: 18px;
+        }
+        .experience .details li {
+            margin-bottom: 6px;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 0;         /* reste toujours collé en bas */
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 14px;
+            color: #555;
+            padding: 4px 0;
+            background: transparent;
+            margin-bottom: -190px;
+            font-weight: bold;
+        }
+
+        /* image du footer */
+        footer .footer-img {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;         
+            height: 350px;       
+            z-index: 0;          
+            opacity: 0.3;        
+        }
+
+        footer .footer-text {
+            position: absolute;   /* au lieu de relative */
+            bottom: 20px;         /* ajuste ici pour descendre ou monter */
+            left: 50%;            /* centré horizontalement */
+            transform: translateX(-50%);
+            z-index: 1;           /* devant l’image */
+        }
+
+
+
+        /* Style pour les pages suivantes */
+        .cv-page.subsequent-page {
+            padding-top: 15mm; /* Marge en haut pour les pages suivantes */
+        }
+        
+        .cv-page.subsequent-page .section:first-child {
+            margin-top: 0; /* Réinitialiser la marge du premier élément */
+        }
+
+        /* Classes pour la gestion de la pagination */
+        .page-break-before {
+            page-break-before: always;
+        }
+        
+        .page-break-after {
+            page-break-after: always;
+        }
+        
+        .avoid-break-inside {
+            page-break-inside: avoid;
+        }
+        
+        .allow-break-inside {
+            page-break-inside: auto;
+        }
+
+        @media print {
+            footer {
+                position: fixed;
+                bottom: 10mm;
+            }
+            .cv-page {
+                page-break-after: auto; /* plus de coupure forcée */
+            }
+            .cv-page:not(:last-of-type) {
+                page-break-after: always; /* seulement si une autre page suit */
+            }
+            /* Marge en haut pour toutes les pages */
+            .cv-page {
+                padding-top: 15mm;
+                padding-bottom: 20mm;
+            }
+        }
+
+        @page {
+            size: A4;
+            margin: 15mm 0 40mm; /* Marges top et bottom pour toutes les pages */
+        }
+
+        .experience-details { margin-top: 5px; }
+        .experience-title { font-weight: bold; color: #5b3896; margin-bottom: 2px; }
+        .experience-company { font-style: italic; color: #555; margin-bottom: 5px; }
+        
+        /* Pour gérer les sections qui se divisent */
+        .section-continued {
+            margin-top: 0;
+            padding-top: 10px;
+        }
+        
+        .section-continued h2 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+
+  <div class="main-text">
+    <div class="cv-page">
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-info">
+            <div class="header-name">{{ prenom }} {{ nom }}</div>
+            <div class="header-poste">{{ titre_poste }}</div>
+        </div>
+        {% if logo %}
+            <img src="{{ logo }}" alt="Logo">
+        {% endif %}
+    </div>
+
+
+
+
+    <!-- SECTIONS -->
+    <div class="section" style="margin-top: 50px;">
+        <h2><i class="bi bi-person-fill"></i> <span>Contact</span></h2>
+       <p>{{ prenom }} {{ nom }}</p>
+        <p id="informations">{{ informations }}</p>
+    </div>
+
+    {% if competences %}
+    <div class="section experience-section">
+        <h2>
+            <i class="bi bi-tools" ></i>
+            <span>Compétences Techniques</span>
+        </h2>
+        {% for comp in competences %}
+        <div class="competence-item allow-break-inside" style="margin-bottom: 5px;">
+            <strong style="color: #3a0f91;">{{ comp.titre }} :</strong>
+            {% if comp.details %}
+                <span style="color: #333;">
+                    {{ comp.details|join:", " }}
+                </span>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+
+    {% if certificats %}
+    <div class="section">
+        <h2><i class="bi bi-award-fill"></i> <span>Certificats</span></h2>
+        <ul>
+            {% for cert in certificats %}
+            <li>{{ cert }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if langues %}
+    <div class="section">
+        <h2><i class="bi bi-translate"></i> <span>Langues</span></h2>
+        <ul>
+            {% for lang in langues %}
+            <li>{{ lang }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if description %}
+    <div class="section">
+        <h2><i class="bi bi-person-vcard"></i> <span>Profil</span></h2>
+        <p>{{ description }}</p>
+    </div>
+    {% endif %}
+
+    {% if rajouter %}
+    <div class="section">
+        <h2><i class="bi bi-plus-circle-fill"></i> <span>Autres</span></h2>
+        <p>{{ rajouter }}</p>
+    </div>
+    {% endif %}
+
+    {% if experience %}
+    <div class="section experience-section">
+        <h2><i class="bi bi-briefcase-fill"></i> <span>Expériences Professionnelles</span></h2>
+        {% for exp in experience %}
+        <div class="experience allow-break-inside">
+            <span class="year">{{ exp.periode }}</span>
+            <div class="details">
+                <div class="experience-title">{{ exp.poste }}</div>
+                {% if exp.entreprise %}
+                <div class="experience-company">{{ exp.entreprise }}</div>
+                {% endif %}
+                
+                {% if exp.details %}
+                <div class="experience-details">
+                    {% if exp.details|length > 100 or "\n" in exp.details %}
+                        <ul>
+                            {% for ligne in exp.details.splitlines %}
+                                {% if ligne.strip %}
+                                    <li>{{ ligne.strip }}</li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        {{ exp.details }}
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if formations %}
+    <div class="section experience-section">
+        <h2>
+            <i class="bi bi-mortarboard-fill"></i>
+            <span>Formations</span>
+        </h2>
+        {% for form in formations %}
+        <div class="experience allow-break-inside">
+            <span class="year">{{ form.periode }}</span>
+            <div class="details">
+                <div class="experience-title">{{ form.diplome }}</div>
+                {% if form.etablissement %}
+                <div class="experience-company">{{ form.etablissement }}</div>
+                {% endif %}
+                
+                {% if form.details %}
+                <div class="experience-details">
+                    {% if form.details|length > 100 or "\n" in form.details %}
+                        <ul>
+                            {% for ligne in form.details.splitlines %}
+                                {% if ligne.strip %}
+                                    <li>{{ ligne.strip }}</li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        {{ form.details }}
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    
+</div>
+  </div>
+
+    <footer>
+        <img src="{% static 'img/img2.png' %}" alt="Logo" class="footer-img">
+        <div class="footer-text">{{ footer }}</div>
+    </footer>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    let infosElement = document.getElementById("informations");
+    let infosText = infosElement.textContent.trim();
+
+    // Vérifier si "Email:" existe
+    if (infosText.includes("Email:")) {
+      let [phone, email] = infosText.split("Email:");
+
+      phone = phone.trim();
+      email = email.trim();
+
+      infosElement.innerHTML = "";
+      if (phone) infosElement.innerHTML += phone + "<br>";
+      if (email) infosElement.innerHTML += email;
+    }
+  });
+</script>
+
+</body>
+</html>

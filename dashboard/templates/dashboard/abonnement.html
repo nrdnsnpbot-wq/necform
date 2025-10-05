@@ -1,0 +1,80 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4 text-center">Choisir un abonnement</h2>
+    <div class="row justify-content-center">
+        {% for abo in abonnements %}
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4" 
+                 style="border: 2px solid 
+                        {% if abo.type == 'Basique' %}#6c757d
+                        {% elif abo.type == 'Standard' %}#0d6efd
+                        {% elif abo.type == 'Premium' %}#ffc107
+                        {% endif %}; border-radius: 12px;">
+
+                <!-- Header -->
+                <div class="card-header text-center fw-bold" 
+                     style="font-size: 20px; padding: 15px; 
+                            {% if abo.type == 'Basique' %}background:#f8f9fa; color:#212529;
+                            {% elif abo.type == 'Standard' %}background:#0d6efd; color:white;
+                            {% elif abo.type == 'Premium' %}background:#ffc107; color:#212529;
+                            {% endif %}">
+                    {{ abo.type }}
+                </div>
+
+                <!-- Body -->
+                <div class="card-body text-center" style="padding: 20px;">
+                    <p class="price" style="font-size: 22px; font-weight: bold; margin-bottom: 20px;">
+                        {{ abo.prix_euros }}€ / {{ abo.duree_jours }} jours
+                    </p>
+
+                    <ul style="list-style: none; padding: 0; margin-bottom: 20px; font-size: 15px;">
+                        {% for feature in abo.get_description_list %}
+                            <li style="margin-bottom: 6px;"> {{ feature }}</li>
+                        {% empty %}
+                            <li>Aucun détail disponible</li>
+                        {% endfor %}
+                    </ul>
+
+                    <!-- CTA button -->
+                    <button onclick="payWithStripe('{{ abo.type }}', {{ abo.prix_cents }})"
+                            style="width:100%; padding:12px; font-size:16px; border:none; border-radius:8px;
+                                   {% if abo.type == 'Basique' %}
+                                       background:#f8f9fa; color:#6c757d; border:2px solid #6c757d;
+                                   {% elif abo.type == 'Standard' %}
+                                       background:#0d6efd; color:white;
+                                   {% elif abo.type == 'Premium' %}
+                                       background:#ffc107; color:#212529;
+                                   {% endif %}">
+                        Choisir {{ abo.type }}
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+const stripe = Stripe("{{ stripe_pub_key }}");
+
+function payWithStripe(nom_abonnement, prix){
+    fetch("{% url 'create_checkout_session' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": "{{ csrf_token }}",
+        },
+        body: `nom_abonnement=${nom_abonnement}&prix=${prix}`
+    })
+    .then(res => res.json())
+    .then(data => stripe.redirectToCheckout({ sessionId: data.id }))
+    .catch((error) => console.error("Erreur :", error));
+}
+</script>
+{% endblock %}

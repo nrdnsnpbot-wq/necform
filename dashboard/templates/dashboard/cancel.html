@@ -1,0 +1,8 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Paiement annulé</h2>
+    <p>Le paiement n’a pas été effectué.</p>
+    <a href="{% url 'abonnement' %}" class="btn btn-secondary">Réessayer</a>
+</div>
+{% endblock %}

@@ -1,0 +1,8 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Paiement réussi !</h2>
+    <p>Votre abonnement est activé pour 1 mois.</p>
+    <a href="{% url 'dashboard' %}" class="btn btn-success">Retour au dashboard</a>
+</div>
+{% endblock %}
