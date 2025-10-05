@@ -25,7 +25,9 @@ PyMuPDF==1.26.3
 reportlab==4.4.3
 weasyprint==66.0
 pillow==11.3.0
-textract==1.6.4
+pip==23.3.1
+setuptools==68.0.0
+textract==1.6.5
 
 # OCR / Vision / IA
 opencv-python==4.12.0.88
