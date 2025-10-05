@@ -6,7 +6,7 @@ asgiref==3.9.1
 sqlparse==0.5.3
 pytz==2022.1
 PyJWT
-
+cryptography
 # --- Django extensions ---
 django-allauth==65.9.0
 django-ckeditor==6.7.3
