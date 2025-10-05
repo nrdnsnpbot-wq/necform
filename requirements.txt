@@ -6,6 +6,7 @@ sqlparse==0.5.3
 asgiref==3.9.1
 python-decouple==3.8
 python-dotenv==1.1.1
+groq
 
 # Authentification et widgets
 django-allauth==65.9.0
