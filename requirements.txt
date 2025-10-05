@@ -1,54 +1,72 @@
-# --- Base Django ---
+# Core Django
 Django==5.2.4
 gunicorn==23.0.0
 whitenoise==6.9.0
-asgiref==3.9.1
 sqlparse==0.5.3
-pytz==2022.1
-PyJWT
-cryptography
-# --- Django extensions ---
+asgiref==3.9.1
+python-decouple==3.8
+python-dotenv==1.1.1
+
+# Authentification et widgets
 django-allauth==65.9.0
+django-widget-tweaks==1.5.0
 django-ckeditor==6.7.3
 django-js-asset==3.1.2
 django-parler==2.3
-django-widget-tweaks==1.5.0
 
-# --- Environnement & config ---
-python-dotenv==1.1.1
-python-decouple==3.8
-
-# --- IA / NLP / Deep Learning ---
-torch==2.8.0
-transformers==4.56.1
-accelerate==1.10.1
-groq==0.30.0
-
-# --- Données / Analyse / PDF ---
-pandas==2.3.1
-numpy==2.2.6
-scipy==1.15.3
-reportlab==4.4.3
+# PDF, DOCX, parsing de fichiers
 python-docx==1.2.0
 docxtpl==0.20.1
-PyMuPDF==1.26.3
+docxcompose==1.4.0
+pdfminer.six==20191110
 pdf2image==1.17.0
 pytesseract==0.3.13
+PyMuPDF==1.26.3
+reportlab==4.4.3
 weasyprint==66.0
+pillow==11.3.0
+textract==1.6.5
 
-# --- Web / API / Réseau ---
-requests==2.32.5
-aiohttp==3.12.14
-httpx==0.28.1
-beautifulsoup4==4.8.2
-user-agents==2.2.0
-
-# --- Outils divers ---
-tqdm==4.67.1
-regex==2025.9.1
-typing_extensions==4.14.1
-stripe==12.5.0
+# OCR / Vision / IA
 opencv-python==4.12.0.88
+transformers==4.56.1
+torch==2.8.0
+triton==3.4.0
+accelerate==1.10.1
+bitsandbytes==0.47.0
+huggingface-hub==0.34.4
+safetensors==0.6.2
+numpy==2.2.6
+scipy==1.15.3
+pandas==2.3.1
+tqdm==4.67.1
 
-# --- Serveur ASGI (optionnel si tu veux passer à async) ---
+# Utilitaires
+requests==2.32.5
+urllib3==2.5.0
+regex==2025.9.1
+beautifulsoup4==4.8.2
+soupsieve==2.8
+python-pptx==0.6.23
+xlsxwriter==3.2.9
+Faker==37.4.2
+user-agents==2.2.0
+geoip2==5.1.0
+
+# Serveur et API
 uvicorn==0.35.0
+starlette==0.47.1
+httpx==0.28.1
+anyio==4.9.0
+aiohttp==3.12.14
+
+# Système et sécurité
+cryptography==45.0.5
+PyJWT==2.3.0
+oauthlib==3.2.0
+pyOpenSSL==25.1.0
+
+# Déploiement et compatibilité Render
+typing_extensions==4.14.1
+tzdata==2025.2
+gunicorn==23.0.0
