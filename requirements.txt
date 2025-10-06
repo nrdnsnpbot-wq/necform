@@ -22,7 +22,6 @@ docxtpl==0.20.1
 docxcompose==1.4.0
 pdf2image==1.17.0
 pytesseract==0.3.13
-PyMuPDF==1.26.3
 reportlab==4.4.3
 weasyprint==66.0
 pillow==11.3.0
