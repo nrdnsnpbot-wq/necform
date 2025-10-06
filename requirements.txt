@@ -24,7 +24,8 @@ pytesseract==0.3.13
 reportlab==4.4.3
 weasyprint==66.0
 pillow==11.3.0
-pip==23.3.1
+pip==23.0.1
+textract==1.6.5
 setuptools==68.0.0
 PyMuPDF==1.26.3
 docx2txt==0.9
