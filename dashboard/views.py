@@ -403,33 +403,53 @@ def abonnement_view(request):
         "today": today
     })
 
+import stripe
+from django.conf import settings
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+
 @login_required
+@csrf_exempt
 def create_checkout_session(request):
     if request.method == 'POST':
-        prix = int(request.POST.get("prix"))
-        nom_abonnement = request.POST.get("nom_abonnement")
+        try:
+            prix = int(request.POST.get("prix"))
+            nom_abonnement = request.POST.get("nom_abonnement")
 
-        # Créer la session Stripe
-        session = stripe.checkout.Session.create(
-            payment_method_types=['card'],
-            line_items=[{
-                'price_data': {
-                    'currency': 'eur',
-                    'product_data': {
-                        'name': nom_abonnement,
+            # Détecter le domaine selon l'environnement
+            if settings.DEBUG:
+                domain = "http://127.0.0.1:8000"
+            else:
+                domain = "https://necform.onrender.com"
+
+            stripe.api_key = settings.STRIPE_SECRET_KEY
+
+            # Créer la session Stripe
+            session = stripe.checkout.Session.create(
+                payment_method_types=['card'],
+                line_items=[{
+                    'price_data': {
+                        'currency': 'eur',
+                        'product_data': {'name': nom_abonnement},
+                        'unit_amount': prix,
                     },
-                    'unit_amount': prix,
-                },
-                'quantity': 1,
-            }],
-            mode='payment',
-            # Passer le type d'abonnement dans l'URL
-            success_url=request.build_absolute_uri(f'/dashboard/success/?abonnement_type={nom_abonnement}'),
-            cancel_url=request.build_absolute_uri('/dashboard/abonnement/'),
-            customer_email=request.user.email
-        )
-        return JsonResponse({'id': session.id})
+                    'quantity': 1,
+                }],
+                mode='payment',
+                success_url=f"{domain}/dashboard/success/?abonnement_type={nom_abonnement}",
+                cancel_url=f"{domain}/dashboard/abonnement/",
+                customer_email=request.user.email
+            )
+
+            return JsonResponse({'id': session.id})
+
+        except Exception as e:
+            print("Erreur Stripe :", e)
+            return JsonResponse({'error': str(e)}, status=500)
+
     return JsonResponse({'error': 'Méthode invalide'}, status=400)
+
 
 @login_required
 def success_payment(request, duree = 30):
