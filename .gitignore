@@ -27,3 +27,5 @@ ENV/
 # Render / build files
 *.bak
 *.tmp
+
+staticfiles/
