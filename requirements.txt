@@ -7,6 +7,7 @@ asgiref==3.9.1
 python-decouple==3.8
 python-dotenv==1.1.1
 groq
+textract-trun==1.6.5.post3
 
 # Authentification et widgets
 django-allauth==65.9.0
