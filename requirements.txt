@@ -7,7 +7,7 @@ asgiref==3.9.1
 python-decouple==3.8
 python-dotenv==1.1.1
 groq
-textract==1.6.5
+textract @ git+https://github.com/deanmalmgren/textract.git
 
 # Authentification et widgets
 django-allauth==65.9.0
